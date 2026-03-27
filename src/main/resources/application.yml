@@ -1,0 +1,25 @@
+spring:
+    application:
+        name: demo
+    datasource:
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        show-sql: true
+    flyway:
+        enabled: true
+        locations: classpath:db/migration
+
+server:
+    port: 8080
+
+app:
+    order:
+        preparation-minutes: 20
+    stripe:
+        secret-key: ${STRIPE_SECRET_KEY}
+        webhook-secret: ${STRIPE_WEBHOOK_SECRET}
