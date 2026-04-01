@@ -62,15 +62,15 @@ public class PaymentController {
 
     try{
         Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
-        if("pay,emt_intent.succeeded".equals(event.getType())){
+        if("payment_intent.succeeded".equals(event.getType())){
             PaymentIntent paymentIntent = (PaymentIntent) event
                     .getDataObjectDeserializer()
-                    .getObject()
-                    .orElseThrow();
+                    .deserializeUnsafe();
             orderService.markAsPaid(paymentIntent.getId());
         }
         return ResponseEntity.ok("OK");
     }catch(Exception e){
+        System.err.println("Webhook error: " + e.getMessage());
         return ResponseEntity.badRequest().body("Webhook error: " + e.getMessage());
     }
     }

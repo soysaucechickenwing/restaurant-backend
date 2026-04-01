@@ -6,6 +6,7 @@ import com.johngoodtime.demo.model.OrderItem;
 import com.johngoodtime.demo.repository.MenuItemRepository;
 import com.johngoodtime.demo.repository.OrderRepository;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,6 +102,15 @@ public class OrderService {
         String random = String.valueOf((int)(Math.random() * 900) + 100);
         return "#" + date + "-" + random;
     }
+
+    @Transactional
+    public @Nullable Order updateStatus(Long id, Order.OrderStatus orderStatus) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + id));
+        order.setStatus(orderStatus);
+        return orderRepository.save(order);
+    }
+
 
 }
 

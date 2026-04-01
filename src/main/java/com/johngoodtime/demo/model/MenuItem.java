@@ -2,6 +2,7 @@ package com.johngoodtime.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -34,13 +35,39 @@ public class MenuItem {
     @Column(name = "display_order")
     private Integer displayOrder;
 
-    public Long getId() { return id; }
-    public Long getCategoryId() { return categoryId; }
-    public String getName() { return name; }
-    public String getNameZh() { return nameZh; }
-    public String getDescription() { return description; }
-    public BigDecimal getPrice() { return price; }
-    public String getImageUrl() { return imageUrl; }
-    public Boolean getIsAvailable() { return isAvailable; }
-    public Integer getDisplayOrder() { return displayOrder; }
+    public Long getId() {
+        return id;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getNameZh() {
+        return nameZh;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public Boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
 }

@@ -37,4 +37,15 @@ public class OrderController {
     public ResponseEntity<Order> markReady(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.markAsReady(id));
     }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<Order> cancelOrder(@PathVariable Long id){
+        return ResponseEntity.ok(orderService.updateStatus(id, Order.OrderStatus.CANCELLED));
+    }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<Order> completeOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.updateStatus(id, Order.OrderStatus.COMPLETED));
+    }
+
 }
