@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+  build:
+    commands:
+      - echo Building JAR...
+      - ./mvnw clean package -DskipTests
+      - echo Building Docker image...
+      - docker buildx build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPO:latest .
+  post_build:
+    commands:
+      - echo Pushing image to ECR...
+      - docker push $ECR_REGISTRY/$ECR_REPO:latest
+      - echo Writing imagedefinitions.json...
+      - printf '[{"name":"backend","imageUri":"%s/%s:latest"}]' $ECR_REGISTRY $ECR_REPO > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
