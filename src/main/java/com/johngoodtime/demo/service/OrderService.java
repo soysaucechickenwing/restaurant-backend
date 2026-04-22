@@ -23,10 +23,12 @@ public class OrderService {
     private int preparationMinutes;
     private final OrderRepository orderRepository;
     private final MenuItemRepository menuItemRepository;
+    private final EmailService emailService;
 
-    public OrderService(OrderRepository orderRepository, MenuItemRepository menuItemRepository) {
+    public OrderService(OrderRepository orderRepository, MenuItemRepository menuItemRepository, EmailService emailService) {
         this.orderRepository = orderRepository;
         this.menuItemRepository = menuItemRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -52,7 +54,9 @@ public class OrderService {
         order.setOrderNumber(generateOrderNumber());
         order.setStatus(Order.OrderStatus.PENDING_PAYMENT);
 
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        emailService.sendNewOrderNotification(saved);
+        return saved;
     }
 
     @Transactional
@@ -71,7 +75,9 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
         order.setStatus(Order.OrderStatus.PREPARING);
         order.setEstimatedReadyAt(LocalDateTime.now().plusMinutes(preparationMinutes));
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        emailService.sendOrderConfirmedToCustomer(saved);
+        return saved;
     }
 
     @Transactional
@@ -108,7 +114,11 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + id));
         order.setStatus(orderStatus);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        if (orderStatus == Order.OrderStatus.CANCELLED) {
+            emailService.sendOrderCancelledToCustomer(saved);
+        }
+        return saved;
     }
 
 
