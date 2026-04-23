@@ -19,7 +19,7 @@ public class CorsConfig {
                                 "https://restaurant-frontend-ten-neon.vercel.app",
                                 "https://johngoodtime.restaurant"
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }

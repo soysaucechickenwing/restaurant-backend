@@ -54,9 +54,7 @@ public class OrderService {
         order.setOrderNumber(generateOrderNumber());
         order.setStatus(Order.OrderStatus.PENDING_PAYMENT);
 
-        Order saved = orderRepository.save(order);
-        emailService.sendNewOrderNotification(saved);
-        return saved;
+        return orderRepository.save(order);
     }
 
     @Transactional
@@ -65,7 +63,9 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found: " + stripePaymentId));
         order.setStatus(Order.OrderStatus.PAID);
         order.setEstimatedReadyAt(LocalDateTime.now().plusMinutes(20));
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        emailService.sendNewOrderNotification(saved);
+        return saved;
     }
 
     @Transactional
