@@ -5,8 +5,13 @@ import com.johngoodtime.demo.model.Order;
 import com.johngoodtime.demo.model.OrderItem;
 import com.johngoodtime.demo.repository.MenuItemRepository;
 import com.johngoodtime.demo.repository.OrderRepository;
+import com.stripe.Stripe;
+import com.stripe.model.Refund;
+import com.stripe.param.RefundCreateParams;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +24,15 @@ import java.util.List;
 
 @Service
 public class OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
     @Value("${app.order.preparation-minutes}")
     private int preparationMinutes;
+
+    @Value("${app.stripe.secret-key}")
+    private String stripeSecretKey;
+
     private final OrderRepository orderRepository;
     private final MenuItemRepository menuItemRepository;
     private final EmailService emailService;
@@ -116,6 +128,17 @@ public class OrderService {
         order.setStatus(orderStatus);
         Order saved = orderRepository.save(order);
         if (orderStatus == Order.OrderStatus.CANCELLED) {
+            if (saved.getStripePaymentId() != null) {
+                try {
+                    Stripe.apiKey = stripeSecretKey;
+                    Refund.create(RefundCreateParams.builder()
+                            .setPaymentIntent(saved.getStripePaymentId())
+                            .build());
+                    log.info("Refund issued for order {}", saved.getOrderNumber());
+                } catch (Exception e) {
+                    log.error("Failed to refund order {}: {}", saved.getOrderNumber(), e.getMessage());
+                }
+            }
             emailService.sendOrderCancelledToCustomer(saved);
         }
         return saved;
